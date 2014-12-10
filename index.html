@@ -1,0 +1,57 @@
+<!DOCTYPTE HTML5>
+<html>
+<head>
+    <title>Barycentric Coordinate Display</title>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <link href='http://fonts.googleapis.com/css?family=Exo' rel='stylesheet' type='text/css'>
+    <style>
+        h1 {
+            margin-top: 3%;
+            text-align: center;
+            font-family: 'Exo', sans-serif;
+        }
+        div.figure {
+            width: 600px;
+            height: 600px;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+        }
+        line {
+            fill: steelblue;
+        }
+        line.dragging {
+            fill: red;
+        }
+        g.axes line {
+            stroke: steelblue;
+            stroke-width:2px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Barycentric Coordinate Display</h1>
+    <div class="figure">
+        <svg height="600" width="600" style="border:1px solid steelblue;">
+            <g class="axes">
+                <line id="line1"
+                      x1="0" y1="0"
+                      x2="0" y2="0"
+                      />
+                <line id="line2"
+                      x1="0" y1="0"
+                      x2="0" y2="0"
+                      />
+                <line id="line3"
+                      x1="0" y1="0"
+                      x2="0" y2="0"
+                      />
+            </g>
+        </svg>
+    </div>
+    <script src="viz.js"></script>
+</body>
+</html>
