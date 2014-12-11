@@ -24,11 +24,18 @@
             fill: steelblue;
         }
         line.dragging {
-            fill: red;
+            stroke: red;
         }
         g.axes line {
             stroke: steelblue;
             stroke-width:2px;
+        }
+        g.axes line.dragging {
+            stroke: red;
+        }
+
+        g.dragging line {
+            stroke: red;
         }
     </style>
 </head>
