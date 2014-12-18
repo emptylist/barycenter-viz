@@ -10,7 +10,7 @@
             text-align: center;
             font-family: 'Exo', sans-serif;
         }
-        div.figure {
+        div#figure {
             width: 600px;
             height: 600px;
             position: absolute;
@@ -37,28 +37,40 @@
         g.dragging line {
             stroke: red;
         }
+
+        div.banner {
+            font-family: 'Exo', sans-serif;
+            position: absolute;
+            top: 680;
+            width: 600px;
+            height: 50px;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+            text-align: center;
+
+        }
     </style>
 </head>
 <body>
     <h1>Barycentric Coordinate Display</h1>
-    <div class="figure">
+    <div id="figure">
         <svg height="600" width="600" style="border:1px solid steelblue;">
-            <g class="axes">
-                <line id="line1"
-                      x1="0" y1="0"
-                      x2="0" y2="0"
-                      />
-                <line id="line2"
-                      x1="0" y1="0"
-                      x2="0" y2="0"
-                      />
-                <line id="line3"
-                      x1="0" y1="0"
-                      x2="0" y2="0"
-                      />
+            <g class="axes" transform="translate(300,350)">
+                <line id="line1"/>
+                <line id="line2"/>
+                <line id="line3"/>
+                <line id="line4"/>
+                <line id="line5"/>
+                <line id="line6"/>
             </g>
         </svg>
     </div>
-    <script src="viz.js"></script>
+    <div class="banner">
+        <p>Drag the figure, watch it spin!</p>
+        <p>Scroll to zoom.</p>
+    </div>
+     <script src="viz.js"></script>
 </body>
 </html>

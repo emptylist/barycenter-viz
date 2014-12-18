@@ -1,27 +1,82 @@
-var lineSize = 400;
 var svg = d3.select("svg");
+
 var drag = d3.behavior.drag();
-var transformVelocityCoeff = 0.2;
 
-var v1 = {
+var transformVelocityCoeff = 0.01;
+var zoomVelocity = 0.2;
+
+var zoomLevel = 1000;
+var x_theta = 0;
+var z_theta = 0;
+
+var camera = {
   x: 0,
-  y: 0
-};
-
-var v2 = {
-  x: 400,
   y: 0,
+  z: 10
 };
 
-var v3 = {
-  x: 200,
-  y: Math.sqrt(3) * 200,
-};
+var Vertex = {
+  create : function (base_x, base_y, base_z) {
+    self = Object.create(this);
+    self.base_x = base_x;
+    self.base_y = base_y;
+    self.base_z = base_z;
 
+    return self;
+  },
+
+  // Transformed 3D coordinates
+  x_transform : function () {
+    return (this.base_x * Math.cos(z_theta)) -
+      (this.base_y * Math.cos(x_theta) * Math.sin(z_theta)) +
+      (this.base_z * Math.sin(x_theta) * Math.sin(z_theta));
+  },
+
+  y_transform : function () {
+    return (this.base_x * Math.sin(z_theta)) +
+      (this.base_y * Math.cos(x_theta) * Math.cos(z_theta)) -
+      (this.base_z * Math.sin(x_theta) * Math.cos(z_theta));
+  },
+
+  z_transform : function () {
+    return (this.base_y * Math.sin(x_theta)) + (this.base_z * Math.cos(x_theta));
+  },
+
+  // Camera Viewpoint
+  cx : function () {
+    return this.x_transform() - camera.x;
+  },
+
+  cy : function () {
+    return this.y_transform() - camera.y;
+  },
+
+  cz : function () {
+    return this.z_transform() - camera.z;
+  },
+
+  // 2D projected x and y
+  x : function () {
+    return ((zoomLevel / this.cz()) * this.cx());
+  },
+
+  y : function () {
+    return ((zoomLevel / this.cz()) * this.cy());
+  },
+}
+
+var v1 = Vertex.create(1, 0, -1 / Math.sqrt(2));
+var v2 = Vertex.create(-1, 0, -1 / Math.sqrt(2));
+var v3 = Vertex.create(0, 1, 1 / Math.sqrt(2));
+var v4 = Vertex.create(0, -1, 1 / Math.sqrt(2));
+
+
+/*
 var centroid = {
-  x: function () { return (1/3) * (v1.x + v2.x + v3.x); },
-  y: function () { return (1/3) * (v1.y + v2.y + v3.y) }
+  x: function () { return (1/3) * (v1.x() + v2.x() + v3.x()); },
+  y: function () { return (1/3) * (v1.y() + v2.y() + v3.y()) }
 };
+*/
 
 function translateSystem (dx, dy) {
   v1.x += dx;
@@ -32,68 +87,67 @@ function translateSystem (dx, dy) {
   v3.y += dy;
 };
 
-translateSystem(100, 150);
+//translateSystem(100, 150);
 
+function update () {
 svg.select("#line1")
-  .attr("x1", v1.x)
-  .attr("y1", v1.y)
-  .attr("x2", v2.x)
-  .attr("y2", v2.y);
+  .attr("x1", v1.x())
+  .attr("y1", v1.y())
+  .attr("x2", v2.x())
+  .attr("y2", v2.y());
 
 svg.select("#line2")
-  .attr("x1", v2.x)
-  .attr("y1", v2.y)
-  .attr("x2", v3.x)
-  .attr("y2", v3.y);
+  .attr("x1", v2.x())
+  .attr("y1", v2.y())
+  .attr("x2", v3.x())
+  .attr("y2", v3.y());
 
 svg.select("#line3")
-  .attr("x1", v1.x)
-  .attr("y1", v1.y)
-  .attr("x2", v3.x)
-  .attr("y2", v3.y);
+  .attr("x1", v1.x())
+  .attr("y1", v1.y())
+  .attr("x2", v3.x())
+  .attr("y2", v3.y());
 
-svg.call(drag);
+svg.select("#line4")
+  .attr("x1", v1.x())
+  .attr("y1", v1.y())
+  .attr("x2", v4.x())
+  .attr("y2", v4.y());
 
-var deg = 0;
+svg.select("#line5")
+  .attr("x1", v2.x())
+  .attr("y1", v2.y())
+  .attr("x2", v4.x())
+  .attr("y2", v4.y());
 
-function update() {
-  //deg += 0.5;
-  //deg = deg % 360;
-  svg.select("g.axes")
-    .transition()
-    .duration(5)
-    .attr("transform", "rotate(" + deg + "," + centroid.x() + "," + centroid.y() + ")" );
+svg.select("#line6")
+  .attr("x1", v3.x())
+  .attr("y1", v3.y())
+  .attr("x2", v4.x())
+  .attr("y2", v4.y());
 };
 
-//setInterval(update, 40);
-/*
-svg.selectAll("circle")
-.data([{x:10, y:10}])
-  .enter().append("circle")
-    .style("color", "steelblue")
-.attr("cy", function(d,i) {return d.y;})
-    .attr("cx", function(d,i) { return d.x; })
-    .attr("r", 10)
-    .call(drag);
-
-svg.selectAll("circle").remove();
-*/
+svg.call(drag);
 
 drag.on("dragstart", function (d) {
   d3.select(this).select("g.axes").classed("dragging", true);
 });
 
-drag.on("drag", function (d) {
-  var dx = d3.event.dx;
-  var dy = d3.event.dy;
-  var dThetaMag = transformVelocityCoeff * Math.sqrt(dx*dx + dy*dy);
-  var dThetaSign = 1;
-  deg = deg + (dThetaMag * dThetaSign) % 360;
-  update();
-  console.log(dx + "," + dy);
-//  d3.select(this).attr("cx", d.x += d3.event.dx).attr("cy", d.y += d3.event.dy);
-});
-
 drag.on("dragend", function (d) {
   d3.select(this).select("g.axes").classed("dragging", false);
 });
+
+drag.on("drag", function (d) {
+  var dx = d3.event.dx;
+  var dy = d3.event.dy;
+  x_theta = (x_theta + transformVelocityCoeff * dy) % (2 * Math.PI);
+  z_theta = (z_theta + transformVelocityCoeff * dx) % (2 * Math.PI);
+  update();
+});
+
+document.getElementById("figure").addEventListener('mousewheel', function (evt) {
+  zoomLevel += zoomVelocity * evt.wheelDelta;
+  update();
+}, false);
+
+update();
